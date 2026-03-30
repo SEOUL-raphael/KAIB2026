@@ -11,6 +11,34 @@
 
 ---
 
+<table border=1 style='margin: auto; word-wrap: break-word;'><tr><td style='text-align: center; word-wrap: break-word;'>사 업 명</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>(81) 항공AI 안전성 확보를 위한 자율임무 신뢰성 보증기술 개발(R&amp;D) (1733-311)</td></tr></table>
+
+□ 사업 코드 정보
+
+
+<table border=1 style='margin: auto; word-wrap: break-word;'><tr><td style='text-align: center; word-wrap: break-word;'>구분</td><td style='text-align: center; word-wrap: break-word;'>회계</td><td style='text-align: center; word-wrap: break-word;'>소관</td><td style='text-align: center; word-wrap: break-word;'>실국(기관)</td><td style='text-align: center; word-wrap: break-word;'>계정</td><td style='text-align: center; word-wrap: break-word;'>분야</td><td style='text-align: center; word-wrap: break-word;'>부문</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>코드</td><td rowspan="2">일반회계</td><td rowspan="2">우주항공청</td><td rowspan="2">항공혁신부문</td><td rowspan="2">-</td><td style='text-align: center; word-wrap: break-word;'>150</td><td style='text-align: center; word-wrap: break-word;'>155</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>명칭</td><td style='text-align: center; word-wrap: break-word;'>과학기술</td><td style='text-align: center; word-wrap: break-word;'>과학기술 연구개발</td></tr></table>
+
+
+<table border=1 style='margin: auto; word-wrap: break-word;'><tr><td style='text-align: center; word-wrap: break-word;'>구분</td><td style='text-align: center; word-wrap: break-word;'>프로그램</td><td style='text-align: center; word-wrap: break-word;'>단위사업</td><td style='text-align: center; word-wrap: break-word;'>세부사업</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>코드</td><td style='text-align: center; word-wrap: break-word;'>1700</td><td style='text-align: center; word-wrap: break-word;'>1733</td><td style='text-align: center; word-wrap: break-word;'>311</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>명칭</td><td style='text-align: center; word-wrap: break-word;'>항공혁신임무수행</td><td style='text-align: center; word-wrap: break-word;'>항공융합기술개발</td><td style='text-align: center; word-wrap: break-word;'>항공AI 안전성 확보를 위한 자율임무신뢰성 보증기술개발(R&amp;D)</td></tr></table>
+
+☐ 사업 성격
+
+
+<table border=1 style='margin: auto; word-wrap: break-word;'><tr><td rowspan="2">신규</td><td rowspan="2">계속</td><td rowspan="2">완료</td><td style='text-align: center; word-wrap: break-word;'>예비타당성</td><td style='text-align: center; word-wrap: break-word;'>총사업비</td><td style='text-align: center; word-wrap: break-word;'>총액계상</td><td style='text-align: center; word-wrap: break-word;'>사업소관 변경정보</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>실시여부</td><td style='text-align: center; word-wrap: break-word;'>관리대상</td><td style='text-align: center; word-wrap: break-word;'>예산사업</td><td style='text-align: center; word-wrap: break-word;'>2025예산 시 소관</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>○</td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td></tr></table>
+
+<div style="text-align: center;">□ 사업 지원 형태 및 지원율</div>
+
+
+
+<table border=1 style='margin: auto; word-wrap: break-word;'><tr><td style='text-align: center; word-wrap: break-word;'>직접</td><td style='text-align: center; word-wrap: break-word;'>출자</td><td style='text-align: center; word-wrap: break-word;'>출연</td><td style='text-align: center; word-wrap: break-word;'>보조</td><td style='text-align: center; word-wrap: break-word;'>융자</td><td style='text-align: center; word-wrap: break-word;'>국고보조율(%)</td><td style='text-align: center; word-wrap: break-word;'>융자율(%)</td></tr><tr><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>○</td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td></tr></table>
+
+## □ 사업 담당자
+
+
+<table border=1 style='margin: auto; word-wrap: break-word;'><tr><td style='text-align: center; word-wrap: break-word;'>사업명</td><td colspan="5">구분</td></tr><tr><td rowspan="3">항공AI 안전성 확보를 위한 자율임무 신뢰성 보증기술 개발(R&amp;D)</td><td rowspan="3">소관부처</td><td style='text-align: center; word-wrap: break-word;'>실·국·과(팀)</td><td style='text-align: center; word-wrap: break-word;'>과 장</td><td style='text-align: center; word-wrap: break-word;'>사무관</td><td style='text-align: center; word-wrap: break-word;'>주무관</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>우주항공임무본부 항공혁신부문</td><td style='text-align: center; word-wrap: break-word;'>최미진</td><td style='text-align: center; word-wrap: break-word;'>이학봉</td><td style='text-align: center; word-wrap: break-word;'>박종현</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>항공혁신임무 보증프로그램</td><td style='text-align: center; word-wrap: break-word;'>055-856-5430</td><td style='text-align: center; word-wrap: break-word;'>055-856-5432</td><td style='text-align: center; word-wrap: break-word;'>055-856-5437</td></tr></table>
+
+---
+
 ### 가.예산 총괄표
 
 (단위: 백만원, %)
@@ -220,35 +248,6 @@
 ---
 
 <table border=1 style='margin: auto; word-wrap: break-word;'><tr><td style='text-align: center; word-wrap: break-word;'>사업명</td><td style='text-align: center; word-wrap: break-word;'>사업기간</td><td style='text-align: center; word-wrap: break-word;'>사업목표</td><td style='text-align: center; word-wrap: break-word;'>차별성</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>DNA+드론기술개발(우주청)</td><td style='text-align: center; word-wrap: break-word;'>&#x27;20년~&#x27;24년</td><td style='text-align: center; word-wrap: break-word;'>D(데이터), N(네트워크), A(인공지능) 융합 개방형 드론 서비스 플랫폼 개발 및 신BM 창출을 통한 검증</td><td style='text-align: center; word-wrap: break-word;'>균집 무인이동체와 5G 특화망 기반 실시간 수색 탐지에 비해 본사업은 AI 기반 자율적인 비행 및임무수행 위주 기술 개발</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>eVTOL 자율비행핵심기술 및 비행안정성 운용성 시험평가 기술개발(우주청)</td><td style='text-align: center; word-wrap: break-word;'>&#x27;21년~&#x27;24년</td><td style='text-align: center; word-wrap: break-word;'>차세대 신개념 도심용 3차원운송 시장 조기 정착을 위한 고안정성 확보 및 도심내 운용을 위한 고신회도 자율비행기술개발</td><td style='text-align: center; word-wrap: break-word;'>자율비행 기술개발의 주제가 유사하나 대상기체가 다르고 AI 활용 유무 부품 성능 및 기술 구현도 자율비행 레벨에서 차이 존재</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>디지털트윈을 활용한 AI 파일릿개발 및 무인기 탑재 실증(방사정)</td><td style='text-align: center; word-wrap: break-word;'>&#x27;24년~&#x27;28년</td><td style='text-align: center; word-wrap: break-word;'>유인 무기체계 기반에서 지능형 무인화로의 천화을 위해 무인 항공기에 탑재 가능한 AI 파일릿 기술을 개발하고 실증하는 것을 목표</td><td style='text-align: center; word-wrap: break-word;'>전장의 가상 디지털트윈 환경 구축과 유무인 무기체계 운용을 위한 임무 위주 AI 파일릿 기술 개발에 비해 본 사업은 AI 기반 고신회 자율 비행 제어 위주 핵심 기술을 개발</td></tr><tr><td colspan="4">o(연계방안) - 국내에서 개발된 소형 유무인항공기를 활용하여 AI 신뢰성 보증기술 개발</td></tr><tr><td colspan="4">[성과 활용방안]  o 연구개발 이후 적용될 UAM 기체 SVO(Simplified Vehicle Operation)* 기술 활용 * 항공기에서 비행 조작을 단순화하여 조종사의 부담을 줄이고, 효율성을 높이기 위한 시스템을 지칭  o 국내 개발 자체 항공기용 AI 플랫폼 확보 후 신규 수출 수요 창출  o 산불/해상/재해 탐지를 위한 고비용/고위험/장시간 소요의 민간 영역의 임무 대체 가능  o 국가차원의 R&amp;D 기술개발을 통해 국내 항공 산업 발전의 성장 발판을 마련하고, 국내 항전 장치 및 부품산업 활성화를 통해 즉각적인 시장 대응이 가능함으로써 미래 (新)산업 진입을 위한 생태계를 조성</td></tr><tr><td colspan="4">[파급효과]  o 정책적 기대효과  - 인공지능을 항공기 자율임무에 적용하기 위한 정책적 기반 마련  - 국제적으로 미 수립된 인공지능 분야 항공기 인증기준을 미리 대비하고 빠르게 정책적으로 반영할 수 있는 방안 마련  o 과학기술적 기대효과  - 항공기의 비상상황에서의 신속하고 정확한 의사결정에 도움을 주어 조종사가 자체 판단을 내리기 전 중요한 상황을 미리 예측 및 지원 가능  - 최적화된 비상착륙 경로 및 지점을 선택하여 안전한 장소를 추천할 수 있음  o 사회적 기대효과  - 승객 안전성을 향상 시켜 사고 감소 및 생명보호, 빠르고 정확한 대응가능  - 사회적 신뢰와 기술 수용성 향상을 통해 항공사 및 정부 신뢰성강화 및 타산업분야에도 신뢰 증가  - 항공산업 발전 및 경쟁력 강화를 통해 산업 혁신 촉진 및 글로벌 경쟁우위 확보 가능</td></tr></table>
-
----
-
-<table border=1 style='margin: auto; word-wrap: break-word;'><tr><td style='text-align: center; word-wrap: break-word;'>사 업 명</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>국가인재개발 지능형 오픈 플랫폼 운영(정보화) (1732-301)</td></tr></table>
-
-## □ 사업 코드 정보
-
-
-<table border=1 style='margin: auto; word-wrap: break-word;'><tr><td style='text-align: center; word-wrap: break-word;'>구분</td><td style='text-align: center; word-wrap: break-word;'>회계</td><td style='text-align: center; word-wrap: break-word;'>소관</td><td style='text-align: center; word-wrap: break-word;'>실국(기관)</td><td style='text-align: center; word-wrap: break-word;'>계정</td><td style='text-align: center; word-wrap: break-word;'>분야</td><td style='text-align: center; word-wrap: break-word;'>부문</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>코드</td><td rowspan="2">일반회계</td><td rowspan="2">인사혁신처</td><td rowspan="2">인사관리국</td><td rowspan="2"></td><td style='text-align: center; word-wrap: break-word;'>010</td><td style='text-align: center; word-wrap: break-word;'>015</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>명칭</td><td style='text-align: center; word-wrap: break-word;'>일반·지방행정</td><td style='text-align: center; word-wrap: break-word;'>정부자원관리</td></tr></table>
-
-
-<table border=1 style='margin: auto; word-wrap: break-word;'><tr><td style='text-align: center; word-wrap: break-word;'>구분</td><td style='text-align: center; word-wrap: break-word;'>프로그램</td><td style='text-align: center; word-wrap: break-word;'>단위사업</td><td style='text-align: center; word-wrap: break-word;'>세부사업</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>코드</td><td style='text-align: center; word-wrap: break-word;'>1700</td><td style='text-align: center; word-wrap: break-word;'>1732</td><td style='text-align: center; word-wrap: break-word;'>301</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>명칭</td><td style='text-align: center; word-wrap: break-word;'>인재개발</td><td style='text-align: center; word-wrap: break-word;'>공무원인재개발</td><td style='text-align: center; word-wrap: break-word;'>국가 인재개발 지능형 오픈 플랫폼 운영(정보화)</td></tr></table>
-
-<div style="text-align: center;">☐ 사업 성격</div>
-
-
-
-<table border=1 style='margin: auto; word-wrap: break-word;'><tr><td rowspan="2">신규</td><td rowspan="2">계속</td><td rowspan="2">완료</td><td rowspan="2">예비타당성 실시여부</td><td rowspan="2">총사업비 관리대상</td><td rowspan="2">총액계상 예산사업</td><td style='text-align: center; word-wrap: break-word;'>사업소관 변경정보</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>2025예산 시 소관</td></tr><tr><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>○</td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td></tr></table>
-
-<div style="text-align: center;">□ 사업 지원 형태 및 지원율</div>
-
-
-
-<table border=1 style='margin: auto; word-wrap: break-word;'><tr><td style='text-align: center; word-wrap: break-word;'>직접</td><td style='text-align: center; word-wrap: break-word;'>출자</td><td style='text-align: center; word-wrap: break-word;'>출연</td><td style='text-align: center; word-wrap: break-word;'>보조</td><td style='text-align: center; word-wrap: break-word;'>융자</td><td style='text-align: center; word-wrap: break-word;'>국고보조율(%)</td><td style='text-align: center; word-wrap: break-word;'>융자율(%)</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>○</td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td></tr></table>
-
-## □ 사업 담당자
-
-
-<table border=1 style='margin: auto; word-wrap: break-word;'><tr><td style='text-align: center; word-wrap: break-word;'>사업명</td><td colspan="2">구분</td></tr><tr><td rowspan="2">국가 인재개발 지능형 오픈 플랫폼 운영 (정보화)</td><td style='text-align: center; word-wrap: break-word;'>소관부처</td><td style='text-align: center; word-wrap: break-word;'>인사관리국 인재개발과</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>사업시행주체</td><td style='text-align: center; word-wrap: break-word;'>인사혁신처</td></tr></table>
 
 ---
 
