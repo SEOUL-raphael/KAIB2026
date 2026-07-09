@@ -1,0 +1,127 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>국회 회의록 공유판</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">National Assembly Minutes Share</p>
+        <h1>국회 회의록 온라인 공유판</h1>
+        <p class="hero-copy">회의록 트리 탐색, 선택 발언 상세, 원문 목록, AI 요약을 한 화면에서 볼 수 있는 공개용 경량 화면입니다.</p>
+      </div>
+      <div class="hero-actions">
+        <a class="ghost-btn" href="https://ltmrtmavgjlflvcbahpy.supabase.co" target="_blank" rel="noreferrer">Supabase</a>
+        <a class="primary-btn" href="./README.md" target="_blank" rel="noreferrer">배포 메모</a>
+      </div>
+    </header>
+
+    <section class="toolbar card">
+      <div class="toolbar-grid">
+        <label>
+          <span>시작일</span>
+          <input id="startDate" type="date" />
+        </label>
+        <label>
+          <span>종료일</span>
+          <input id="endDate" type="date" />
+        </label>
+        <label class="search-field">
+          <span>텍스트 필터</span>
+          <input id="searchInput" type="search" placeholder="발언자, 위원회, 안건, 발언문 검색" />
+        </label>
+        <div class="toolbar-actions">
+          <button id="refreshBtn" class="primary-btn">불러오기</button>
+        </div>
+      </div>
+      <div class="toolbar-bottom">
+        <div class="toggle-group">
+          <button id="modeCommitteeBtn" class="toggle-btn active">위원회 우선</button>
+          <button id="modeSpeakerBtn" class="toggle-btn">발언자 우선</button>
+        </div>
+        <div id="statusLine" class="status-line">초기화 중...</div>
+      </div>
+    </section>
+
+    <section class="kpis">
+      <article class="card kpi">
+        <span class="kpi-label">조회 발언 수</span>
+        <strong id="kpiRows">0</strong>
+      </article>
+      <article class="card kpi">
+        <span class="kpi-label">위원회 수</span>
+        <strong id="kpiCommittees">0</strong>
+      </article>
+      <article class="card kpi">
+        <span class="kpi-label">발언자 수</span>
+        <strong id="kpiSpeakers">0</strong>
+      </article>
+      <article class="card kpi">
+        <span class="kpi-label">선택 날짜</span>
+        <strong id="kpiDay">-</strong>
+      </article>
+    </section>
+
+    <section class="content-grid">
+      <article class="card panel">
+        <div class="panel-head">
+          <h2>트리</h2>
+          <span id="treeSummary" class="panel-meta">-</span>
+        </div>
+        <div id="treeRoot" class="tree-root"></div>
+      </article>
+
+      <article class="card panel detail-panel">
+        <div class="panel-head">
+          <h2>선택 발언 상세</h2>
+          <span id="detailMeta" class="panel-meta">-</span>
+        </div>
+        <div id="detailBox" class="detail-box empty">발언을 선택해 주세요.</div>
+
+        <div class="ai-box">
+          <div class="panel-head inline">
+            <h3>AI 요약</h3>
+            <span id="aiStatus" class="panel-meta">MiniMax Edge 준비 전</span>
+          </div>
+          <div class="ai-controls">
+            <input id="aiQuestion" type="text" placeholder="예: 오늘 회의의 재난안전 관련 쟁점을 요약해줘" />
+            <button id="aiBtn" class="primary-btn">요약 요청</button>
+          </div>
+          <pre id="aiResult" class="ai-result">요약 결과가 여기에 표시됩니다.</pre>
+        </div>
+      </article>
+    </section>
+
+    <section class="card panel table-panel">
+      <div class="panel-head">
+        <h2>로우 목록</h2>
+        <span id="tableMeta" class="panel-meta">상위 200건 표시</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>일자</th>
+              <th>회의유형</th>
+              <th>위원회 경로</th>
+              <th>발언자</th>
+              <th>안건</th>
+              <th>발언 미리보기</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
