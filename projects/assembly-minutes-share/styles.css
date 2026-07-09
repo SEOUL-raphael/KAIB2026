@@ -165,6 +165,13 @@ input {
   gap: 12px;
 }
 
+.info-grid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
 .kpi {
   padding: 18px;
 }
@@ -207,6 +214,50 @@ input {
 .panel h3 {
   margin: 0;
   font-size: 18px;
+}
+
+.mini-list {
+  display: grid;
+  gap: 10px;
+}
+
+.mini-item {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fbfcfb;
+  padding: 14px;
+}
+
+.mini-item strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 15px;
+}
+
+.mini-item p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.mini-links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.mini-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: white;
+  color: var(--accent);
+  font-size: 12px;
+  text-decoration: none;
 }
 
 .tree-root {
@@ -346,6 +397,7 @@ tr.row-button.active td {
 
 @media (max-width: 1024px) {
   .toolbar-grid,
+  .info-grid,
   .content-grid,
   .kpis,
   .ai-controls {
