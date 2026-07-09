@@ -23,6 +23,10 @@ const kpiRowsEl = document.getElementById("kpiRows");
 const kpiCommitteesEl = document.getElementById("kpiCommittees");
 const kpiSpeakersEl = document.getElementById("kpiSpeakers");
 const kpiDayEl = document.getElementById("kpiDay");
+const recordMetaEl = document.getElementById("recordMeta");
+const recordListEl = document.getElementById("recordList");
+const agendaMetaEl = document.getElementById("agendaMeta");
+const agendaListEl = document.getElementById("agendaList");
 const aiQuestionEl = document.getElementById("aiQuestion");
 const aiBtnEl = document.getElementById("aiBtn");
 const aiResultEl = document.getElementById("aiResult");
@@ -99,6 +103,7 @@ function escapeHtml(value) {
 function enrichRows(rows) {
   return (rows || []).map((row) => ({
     ...row,
+    session_id: cleanText(row.session_id, ""),
     meeting_date: row.meeting_date || "",
     meeting_type: normalizeLabel(row.meeting_type, "회의유형 미상"),
     speaker: normalizeLabel(row.speaker, "발언자 미상"),
@@ -311,8 +316,77 @@ function renderTable() {
   }
 }
 
+function renderRecordPanels() {
+  const sessionMap = new Map();
+  const agendaMap = new Map();
+  const speakerMap = new Map();
+
+  for (const row of state.filteredRows) {
+    const sessionKey = `${row.session_id || "unknown"}|${row.meeting_date}|${row.committee_path}`;
+    if (!sessionMap.has(sessionKey)) {
+      sessionMap.set(sessionKey, {
+        sessionId: row.session_id || "미상",
+        meetingDate: row.meeting_date || "-",
+        meetingType: row.meeting_type,
+        committeePath: row.committee_path,
+        sourceUrl: row.source_url || "",
+        agendas: new Set(),
+        utteranceCount: 0,
+        speakers: new Set(),
+      });
+    }
+    const item = sessionMap.get(sessionKey);
+    item.utteranceCount += 1;
+    item.speakers.add(row.speaker);
+    if (row.agenda && row.agenda !== "안건 미상") item.agendas.add(row.agenda);
+
+    agendaMap.set(row.agenda, (agendaMap.get(row.agenda) || 0) + 1);
+    speakerMap.set(row.speaker, (speakerMap.get(row.speaker) || 0) + 1);
+  }
+
+  const sessions = [...sessionMap.values()]
+    .sort((a, b) => String(b.meetingDate).localeCompare(String(a.meetingDate)))
+    .slice(0, 8);
+  const agendas = [...agendaMap.entries()]
+    .filter(([name]) => name && name !== "안건 미상")
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6);
+  const speakers = [...speakerMap.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6);
+
+  recordMetaEl.textContent = `최근 회의 ${formatNumber(sessions.length)}건`;
+  agendaMetaEl.textContent = `주요 안건 ${formatNumber(agendas.length)}개 · 주요 발언자 ${formatNumber(speakers.length)}명`;
+
+  recordListEl.innerHTML = sessions.length
+    ? sessions.map((item) => `
+        <article class="mini-item">
+          <strong>${escapeHtml(item.committeePath)}</strong>
+          <p>${escapeHtml(item.meetingDate)} · ${escapeHtml(item.meetingType)} · 회의번호 ${escapeHtml(item.sessionId)}</p>
+          <p>발언 ${formatNumber(item.utteranceCount)}건 · 발언자 ${formatNumber(item.speakers.size)}명</p>
+          <p>${escapeHtml([...item.agendas].slice(0, 3).join(" / ") || "안건 정보 없음")}</p>
+          <div class="mini-links">
+            ${item.sourceUrl ? `<a class="mini-link" href="${escapeHtml(item.sourceUrl)}" target="_blank" rel="noreferrer">원문 PDF</a>` : ""}
+          </div>
+        </article>
+      `).join("")
+    : `<div class="detail-box empty">표시할 회의 기록이 없습니다.</div>`;
+
+  agendaListEl.innerHTML = `
+    <article class="mini-item">
+      <strong>주요 안건</strong>
+      <p>${agendas.map(([name, count]) => `${escapeHtml(name)} (${formatNumber(count)}건)`).join("<br>") || "안건 정보 없음"}</p>
+    </article>
+    <article class="mini-item">
+      <strong>주요 발언자</strong>
+      <p>${speakers.map(([name, count]) => `${escapeHtml(name)} (${formatNumber(count)}건)`).join("<br>") || "발언자 정보 없음"}</p>
+    </article>
+  `;
+}
+
 function renderAll() {
   computeKpis(state.filteredRows);
+  renderRecordPanels();
   renderTree();
   renderDetail();
   renderTable();
@@ -351,7 +425,7 @@ async function fetchAssemblyRows(start, end) {
   for (let offset = 0; offset < hardLimit; offset += pageSize) {
     const { data, error } = await supabase
       .from("assembly_minutes_raw")
-      .select("utterance_id,meeting_date,meeting_type,committee,agenda1,agenda2,speaker,speech_order,speech_text,source_url")
+      .select("utterance_id,session_id,meeting_date,meeting_type,committee,agenda1,agenda2,speaker,speech_order,speech_text,source_url")
       .gte("meeting_date", start)
       .lte("meeting_date", end)
       .order("meeting_date", { ascending: false })
