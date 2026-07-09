@@ -23,14 +23,14 @@ const kpiRowsEl = document.getElementById("kpiRows");
 const kpiCommitteesEl = document.getElementById("kpiCommittees");
 const kpiSpeakersEl = document.getElementById("kpiSpeakers");
 const kpiDayEl = document.getElementById("kpiDay");
-const recordMetaEl = document.getElementById("recordMeta");
-const recordListEl = document.getElementById("recordList");
-const agendaMetaEl = document.getElementById("agendaMeta");
-const agendaListEl = document.getElementById("agendaList");
 const aiQuestionEl = document.getElementById("aiQuestion");
 const aiBtnEl = document.getElementById("aiBtn");
 const aiResultEl = document.getElementById("aiResult");
 const aiStatusEl = document.getElementById("aiStatus");
+let recordMetaEl = document.getElementById("recordMeta");
+let recordListEl = document.getElementById("recordList");
+let agendaMetaEl = document.getElementById("agendaMeta");
+let agendaListEl = document.getElementById("agendaList");
 
 const state = {
   rows: [],
@@ -98,6 +98,53 @@ function escapeHtml(value) {
     .replace(/>/g, "&gt;")
     .replace(/\"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+function ensureInfoPanels() {
+  if (recordMetaEl && recordListEl && agendaMetaEl && agendaListEl) return;
+
+  if (!document.getElementById("assembly-share-inline-style")) {
+    const style = document.createElement("style");
+    style.id = "assembly-share-inline-style";
+    style.textContent = `
+      .info-grid { margin-top: 18px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+      .mini-list { display: grid; gap: 10px; }
+      .mini-item { border: 1px solid var(--line); border-radius: 16px; background: #fbfcfb; padding: 14px; }
+      .mini-item strong { display: block; margin-bottom: 6px; font-size: 15px; }
+      .mini-item p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
+      .mini-links { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+      .mini-link { display: inline-flex; align-items: center; padding: 6px 10px; border: 1px solid var(--line); border-radius: 999px; background: white; color: var(--accent); font-size: 12px; text-decoration: none; }
+      @media (max-width: 1024px) { .info-grid { grid-template-columns: 1fr; } }
+    `;
+    document.head.appendChild(style);
+  }
+
+  const kpisSection = document.querySelector(".kpis");
+  if (!kpisSection) return;
+
+  const wrapper = document.createElement("section");
+  wrapper.className = "info-grid";
+  wrapper.innerHTML = `
+    <article class="card panel">
+      <div class="panel-head">
+        <h2>의정 기록</h2>
+        <span id="recordMeta" class="panel-meta">최근 회의 단위 기록</span>
+      </div>
+      <div id="recordList" class="mini-list"></div>
+    </article>
+    <article class="card panel">
+      <div class="panel-head">
+        <h2>관련 정보</h2>
+        <span id="agendaMeta" class="panel-meta">주요 안건과 발언자</span>
+      </div>
+      <div id="agendaList" class="mini-list"></div>
+    </article>
+  `;
+  kpisSection.insertAdjacentElement("afterend", wrapper);
+  recordMetaEl = document.getElementById("recordMeta");
+  recordListEl = document.getElementById("recordList");
+  agendaMetaEl = document.getElementById("agendaMeta");
+  agendaListEl = document.getElementById("agendaList");
 }
 
 function enrichRows(rows) {
@@ -317,6 +364,8 @@ function renderTable() {
 }
 
 function renderRecordPanels() {
+  ensureInfoPanels();
+  if (!recordMetaEl || !recordListEl || !agendaMetaEl || !agendaListEl) return;
   const sessionMap = new Map();
   const agendaMap = new Map();
   const speakerMap = new Map();
