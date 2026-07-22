@@ -175,11 +175,11 @@
       <div class="rag-grid">
         <article class="rag-card">
           <strong>1. Retrieval</strong>
-          <p>기본적으로는 Supabase의 <code>assembly_minutes_raw</code>에서 회의록 범위를 조회합니다. 같은 PC에서 로컬 Nemotron 임베딩 서버가 열려 있으면 질문을 1024차원 벡터로 바꿔 <code>pgvector</code> 유사도 검색을 먼저 수행하고, 실패하면 SQL 범위 조회로 내려갑니다.</p>
+          <p>공개 페이지에서는 Supabase의 <code>assembly_minutes_raw</code>에서 날짜 범위와 필터 조건으로 회의록을 조회합니다. 페이지 자체는 브라우저나 LAN 서버에서 임베딩을 만들지 않고, 업로드된 데이터와 사전 적재된 결과만 사용합니다.</p>
         </article>
         <article class="rag-card">
           <strong>2. Augmentation</strong>
-          <p>벡터 검색 또는 날짜 범위 검색으로 찾은 발언 중 상위 근거 묶음을 구성하고, 위원회·발언자·안건 정보를 함께 MiniMax에 전달합니다. 즉 모델은 인터넷 전체가 아니라 현재 회의록 근거 묶음을 기반으로 답변합니다.</p>
+          <p>조회된 발언 묶음에서 위원회·발언자·안건·대표 발언을 함께 정리해 MiniMax에 전달합니다. 즉 모델은 인터넷 전체가 아니라 현재 공개 테이블에 올라온 회의록 범위에 근거해 답변합니다.</p>
         </article>
         <article class="rag-card">
           <strong>3. Generation</strong>
@@ -187,15 +187,15 @@
         </article>
         <article class="rag-card">
           <strong>동기화 경로</strong>
-          <p>원천 SQLite 회의록은 Supabase 공개 테이블로 증분 동기화되고, Nemotron 1024 문서 벡터는 별도 <code>pgvector</code> 테이블로 적재됩니다. 이 공개 페이지는 최신 <code>meeting_date</code>를 읽어 기본 조회 범위를 자동으로 맞춥니다.</p>
+          <p>원천 SQLite 회의록은 Supabase 공개 테이블로 증분 동기화되고, 임베딩 작업은 별도 로컬 PC에서 수행한 뒤 결과만 업로드됩니다. 이 공개 페이지는 최신 <code>meeting_date</code>를 읽어 기본 조회 범위를 자동으로 맞춥니다.</p>
         </article>
         <article class="rag-card">
           <strong>왜 이 구조가 유용한가</strong>
-          <p>검색과 생성이 분리돼 있어서, 사용자는 원문 목록으로 사실을 확인하고 MiniMax 브리핑으로 핵심을 빠르게 파악할 수 있습니다. 즉 “원문 근거 + 벡터 검색 + 모델 설명”이 같이 움직입니다.</p>
+          <p>검색과 생성이 분리돼 있어서, 사용자는 원문 목록으로 사실을 확인하고 MiniMax 브리핑으로 핵심을 빠르게 파악할 수 있습니다. 즉 “원문 근거 + 업로드된 데이터 + 모델 설명”이 같이 움직입니다.</p>
         </article>
         <article class="rag-card">
           <strong>현재 한계</strong>
-          <p>온라인 GitHub Pages는 외부 정적 페이지이기 때문에, 로컬 Nemotron 서버는 같은 PC에서 접속할 때만 직접 사용할 수 있습니다. 다른 기기에서는 자동으로 SQL 범위 조회 fallback이 동작합니다.</p>
+          <p>공개 페이지는 실시간 임베딩을 만들지 않기 때문에, 벡터 검색 품질은 로컬 PC에서 미리 생성해 업로드한 임베딩 범위와 품질에 좌우됩니다. 즉 공개판은 사전 적재 결과를 소비하는 구조입니다.</p>
         </article>
       </div>
     </section>
