@@ -101,17 +101,29 @@ function setSyncMeta(latestDate) {
     : "최종 동기화 기준일 확인 불가";
 }
 
-function setModelMeta(mode = "") {
+function retrievalLabel(retrievalMode = "") {
+  if (retrievalMode === "vector_jina1024") return "벡터 RAG";
+  if (retrievalMode === "sql_range") return "SQL 범위 조회";
+  return "조회 경로 미상";
+}
+
+function shortError(text, maxLength = 84) {
+  const value = cleanText(text, "");
+  return value.length > maxLength ? `${value.slice(0, maxLength)}...` : value;
+}
+
+function setModelMeta(mode = "", retrievalMode = "") {
+  const retrieval = retrievalMode ? ` · ${retrievalLabel(retrievalMode)}` : "";
   if (!modelMetaEl) return;
   if (mode === "minimax") {
-    modelMetaEl.textContent = "AI 요약: MiniMax 응답 확인";
+    modelMetaEl.textContent = `AI 요약: MiniMax 응답 확인${retrieval}`;
     return;
   }
   if (mode === "fallback") {
-    modelMetaEl.textContent = "AI 요약: 로컬 대체 요약 사용 중";
+    modelMetaEl.textContent = `AI 요약: 로컬 대체 요약 사용 중${retrieval}`;
     return;
   }
-  modelMetaEl.textContent = "AI 요약: MiniMax 연계";
+  modelMetaEl.textContent = `AI 요약: MiniMax 연계${retrieval}`;
 }
 
 function setAiOutputs(answerText, analysisText = "") {
@@ -602,13 +614,22 @@ async function runAiBrief() {
     const payload = await response.json();
     if (!payload.ok) throw new Error(payload.error || "요약 실패");
     state.aiMode = payload.mode || "unknown";
-    aiStatusEl.textContent = state.aiMode === "minimax" ? "MiniMax 응답" : "로컬 대체 요약";
-    setModelMeta(state.aiMode === "minimax" ? "minimax" : "fallback");
+    const retrievalMode = payload?.stats?.retrieval_mode || "";
+    const semanticRows = Number(payload?.stats?.semantic_rows || 0);
+    const vectorError = shortError(payload?.stats?.vector_error || "");
+    if (state.aiMode === "minimax") {
+      aiStatusEl.textContent = semanticRows > 0
+        ? `MiniMax 응답 · ${retrievalLabel(retrievalMode)} · 근거 ${semanticRows}건`
+        : `MiniMax 응답 · ${retrievalLabel(retrievalMode)}${vectorError ? ` · ${vectorError}` : ""}`;
+    } else {
+      aiStatusEl.textContent = `로컬 대체 요약 · ${retrievalLabel(retrievalMode)}`;
+    }
+    setModelMeta(state.aiMode === "minimax" ? "minimax" : "fallback", retrievalMode);
     setAiOutputs(payload.answer || "응답이 비어 있습니다.", payload.analysis_summary || payload.analysis || "");
   } catch (error) {
     console.warn("AI brief fallback", error);
     aiStatusEl.textContent = "로컬 대체 요약";
-    setModelMeta("fallback");
+    setModelMeta("fallback", "sql_range");
     setAiOutputs(localSummary(state.filteredRows, question), localAnalysisNote(state.filteredRows));
   } finally {
     aiBtnEl.disabled = false;
@@ -662,7 +683,7 @@ async function init() {
     console.warn("latest meeting date fallback", error);
     setSyncMeta("");
   }
-  setModelMeta();
+  setModelMeta("", "");
   await refreshRows();
 }
 
