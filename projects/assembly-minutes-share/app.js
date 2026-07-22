@@ -2,7 +2,6 @@
 
 const SUPABASE_URL = "https://ltmrtmavgjlflvcbahpy.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_G7KWaNGrMUE-5bZ4XxmiQg_sO-ZEaUC";
-const SUPABASE_ANON_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0bXJ0bWF2Z2psZmx2Y2JhaHB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2OTg5MzcsImV4cCI6MjA4ODI3NDkzN30.2VGWuCrw8eIz0vqNmhEKhkJUn8Huh537uY7LDjPxELg";
 const ASSEMBLY_BRIEF_URL = `${SUPABASE_URL}/functions/v1/assembly-brief`;
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } });
 
@@ -598,8 +597,7 @@ async function runAiBrief() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        apikey: SUPABASE_ANON_JWT,
-        Authorization: `Bearer ${SUPABASE_ANON_JWT}`,
+        apikey: SUPABASE_ANON_KEY,
       },
       body: JSON.stringify({
         question,
