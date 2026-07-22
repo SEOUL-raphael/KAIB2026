@@ -5,6 +5,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_G7KWaNGrMUE-5bZ4XxmiQg_sO-ZEaUC";
 const SUPABASE_ANON_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0bXJ0bWF2Z2psZmx2Y2JhaHB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2OTg5MzcsImV4cCI6MjA4ODI3NDkzN30.2VGWuCrw8eIz0vqNmhEKhkJUn8Huh537uY7LDjPxELg";
 const ASSEMBLY_BRIEF_URL = `${SUPABASE_URL}/functions/v1/assembly-brief`;
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } });
+const E5_MODEL_ID = "Xenova/multilingual-e5-small";
 
 const startDateEl = document.getElementById("startDate");
 const endDateEl = document.getElementById("endDate");
@@ -42,6 +43,29 @@ const state = {
   mode: "committee",
   aiMode: "unknown",
 };
+
+let embeddingExtractorPromise = null;
+
+async function getEmbeddingExtractor() {
+  if (!embeddingExtractorPromise) {
+    embeddingExtractorPromise = (async () => {
+      const mod = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers");
+      if (mod.env) {
+        mod.env.allowLocalModels = false;
+      }
+      return mod.pipeline("feature-extraction", E5_MODEL_ID);
+    })();
+  }
+  return embeddingExtractorPromise;
+}
+
+async function buildQueryEmbedding384(question) {
+  const extractor = await getEmbeddingExtractor();
+  const output = await extractor(`query: ${question}`, { pooling: "mean", normalize: true });
+  const values = Array.from(output?.data || []);
+  if (!values.length) throw new Error("브라우저 질의 임베딩 생성 실패");
+  return `[${values.map((value) => Number(value).toFixed(7)).join(",")}]`;
+}
 
 function isoDay(date) {
   return date.toISOString().slice(0, 10);
@@ -102,6 +126,7 @@ function setSyncMeta(latestDate) {
 }
 
 function retrievalLabel(retrievalMode = "") {
+  if (retrievalMode === "vector_local384") return "벡터 RAG(local384)";
   if (retrievalMode === "vector_jina1024") return "벡터 RAG";
   if (retrievalMode === "sql_range") return "SQL 범위 조회";
   return "조회 경로 미상";
@@ -590,6 +615,16 @@ async function runAiBrief() {
   aiBtnEl.disabled = true;
   aiResultEl.textContent = "요약 생성 중...";
   try {
+    aiStatusEl.textContent = "질의 임베딩 준비 중...";
+    let queryEmbedding384Text = "";
+    try {
+      queryEmbedding384Text = await buildQueryEmbedding384(question);
+      aiStatusEl.textContent = "벡터 검색 준비 완료 · MiniMax 요청 중...";
+    } catch (embeddingError) {
+      console.warn("browser query embedding fallback", embeddingError);
+      aiStatusEl.textContent = "질의 임베딩 실패 · SQL 범위 조회로 계속 진행...";
+    }
+
     const response = await fetch(ASSEMBLY_BRIEF_URL, {
       method: "POST",
       headers: {
@@ -604,6 +639,7 @@ async function runAiBrief() {
         end: endDateEl.value,
         domain: "assembly",
         limit: 6,
+        query_embedding_384_text: queryEmbedding384Text,
       }),
     });
 
