@@ -29,6 +29,7 @@ const aiAnalysisEl = document.getElementById("aiAnalysis");
 const aiStatusEl = document.getElementById("aiStatus");
 const syncMetaEl = document.getElementById("syncMeta");
 const modelMetaEl = document.getElementById("modelMeta");
+const vectorMetaEl = document.getElementById("vectorMeta");
 let recordMetaEl = document.getElementById("recordMeta");
 let recordListEl = document.getElementById("recordList");
 let agendaMetaEl = document.getElementById("agendaMeta");
@@ -98,6 +99,11 @@ function setSyncMeta(latestDate) {
   syncMetaEl.textContent = latestDate
     ? `최종 동기화 기준일: ${latestDate}`
     : "최종 동기화 기준일 확인 불가";
+}
+
+function setVectorMeta(text) {
+  if (!vectorMetaEl) return;
+  vectorMetaEl.textContent = text || "벡터 적재 범위 확인 불가";
 }
 
 function retrievalLabel(retrievalMode = "") {
@@ -560,6 +566,27 @@ async function fetchLatestMeetingDate() {
   return data?.[0]?.meeting_date || null;
 }
 
+async function fetchVectorCoverage() {
+  const table = "assembly_minutes_embedding_nemotron1024";
+
+  const [{ count, error: countError }, { data: minData, error: minError }, { data: maxData, error: maxError }] =
+    await Promise.all([
+      supabase.from(table).select("utterance_id", { count: "exact", head: true }),
+      supabase.from(table).select("meeting_date").order("meeting_date", { ascending: true }).limit(1),
+      supabase.from(table).select("meeting_date").order("meeting_date", { ascending: false }).limit(1),
+    ]);
+
+  if (countError) throw countError;
+  if (minError) throw minError;
+  if (maxError) throw maxError;
+
+  return {
+    count: Number(count || 0),
+    start: minData?.[0]?.meeting_date || null,
+    end: maxData?.[0]?.meeting_date || null,
+  };
+}
+
 async function refreshRows() {
   const start = startDateEl.value;
   const end = endDateEl.value;
@@ -673,6 +700,7 @@ aiBtnEl.addEventListener("click", runAiBrief);
 async function init() {
   initDates();
   syncModeButtons();
+  setVectorMeta("벡터 적재 범위 확인 중...");
   try {
     const latest = await fetchLatestMeetingDate();
     if (latest) {
@@ -684,6 +712,17 @@ async function init() {
   } catch (error) {
     console.warn("latest meeting date fallback", error);
     setSyncMeta("");
+  }
+  try {
+    const vector = await fetchVectorCoverage();
+    if (vector.count > 0 && vector.start && vector.end) {
+      setVectorMeta(`벡터DB 적재 범위: ${vector.start} ~ ${vector.end} · ${formatNumber(vector.count)}건`);
+    } else {
+      setVectorMeta("벡터DB 적재 범위: 아직 없음");
+    }
+  } catch (error) {
+    console.warn("vector coverage fallback", error);
+    setVectorMeta("벡터DB 적재 범위 확인 불가");
   }
   setModelMeta("", "");
   await refreshRows();
