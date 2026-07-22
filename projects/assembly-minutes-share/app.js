@@ -27,6 +27,8 @@ const aiQuestionEl = document.getElementById("aiQuestion");
 const aiBtnEl = document.getElementById("aiBtn");
 const aiResultEl = document.getElementById("aiResult");
 const aiStatusEl = document.getElementById("aiStatus");
+const syncMetaEl = document.getElementById("syncMeta");
+const modelMetaEl = document.getElementById("modelMeta");
 let recordMetaEl = document.getElementById("recordMeta");
 let recordListEl = document.getElementById("recordList");
 let agendaMetaEl = document.getElementById("agendaMeta");
@@ -89,6 +91,26 @@ function shortText(text, length = 84) {
 
 function formatNumber(value) {
   return Number(value || 0).toLocaleString("ko-KR");
+}
+
+function setSyncMeta(latestDate) {
+  if (!syncMetaEl) return;
+  syncMetaEl.textContent = latestDate
+    ? `최종 동기화 기준일: ${latestDate}`
+    : "최종 동기화 기준일 확인 불가";
+}
+
+function setModelMeta(mode = "") {
+  if (!modelMetaEl) return;
+  if (mode === "minimax") {
+    modelMetaEl.textContent = "AI 요약: MiniMax 응답 확인";
+    return;
+  }
+  if (mode === "fallback") {
+    modelMetaEl.textContent = "AI 요약: 로컬 대체 요약 사용 중";
+    return;
+  }
+  modelMetaEl.textContent = "AI 요약: MiniMax 연계";
 }
 
 function escapeHtml(value) {
@@ -556,11 +578,13 @@ async function runAiBrief() {
     if (!payload.ok) throw new Error(payload.error || "요약 실패");
     state.aiMode = payload.mode || "unknown";
     aiStatusEl.textContent = state.aiMode === "minimax" ? "MiniMax 응답" : "로컬 대체 요약";
+    setModelMeta(state.aiMode === "minimax" ? "minimax" : "fallback");
     aiResultEl.textContent = payload.answer || "응답이 비어 있습니다.";
     aiResultEl.classList.remove("empty");
   } catch (error) {
     console.warn("AI brief fallback", error);
     aiStatusEl.textContent = "로컬 대체 요약";
+    setModelMeta("fallback");
     aiResultEl.textContent = localSummary(state.filteredRows, question);
     aiResultEl.classList.remove("empty");
   } finally {
@@ -608,11 +632,14 @@ async function init() {
     if (latest) {
       endDateEl.value = latest;
       startDateEl.value = shiftDay(latest, -14);
+      setSyncMeta(latest);
       statusLineEl.textContent = `최신 회의일 기준 기본 범위 적용 · ${startDateEl.value} ~ ${endDateEl.value}`;
     }
   } catch (error) {
     console.warn("latest meeting date fallback", error);
+    setSyncMeta("");
   }
+  setModelMeta();
   await refreshRows();
 }
 
