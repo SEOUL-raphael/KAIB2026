@@ -54,6 +54,12 @@
       </div>
     </section>
 
+    <nav class="page-menu card">
+      <a class="menu-link active" href="#aiBriefSection">AI 브리핑</a>
+      <a class="menu-link" href="#minutesSection">회의록 탐색</a>
+      <a class="menu-link" href="#ragBackgroundSection">RAG 배경</a>
+    </nav>
+
     <section class="kpis">
       <article class="card kpi">
         <span class="kpi-label">조회 발언 수</span>
@@ -91,13 +97,43 @@
       </article>
     </section>
 
-    <section class="content-grid">
-      <article class="card panel">
+    <section id="aiBriefSection" class="center-stage">
+      <article id="minutesSection" class="card panel">
         <div class="panel-head">
           <h2>트리</h2>
           <span id="treeSummary" class="panel-meta">-</span>
         </div>
         <div id="treeRoot" class="tree-root"></div>
+      </article>
+
+      <article class="card panel ai-stage">
+        <div class="panel-head">
+          <h2>MiniMax 브리핑 채팅</h2>
+          <span id="aiStatus" class="panel-meta">MiniMax 연결 확인 중</span>
+        </div>
+        <p class="panel-copy">선택된 발언과 현재 날짜 범위를 바탕으로 MiniMax가 회의 브리핑을 작성합니다. 내부 추론 전체 대신, 사람이 읽을 수 있는 분석 메모만 함께 표시합니다.</p>
+        <div class="ai-box ai-box-centered">
+          <div class="ai-controls">
+            <input id="aiQuestion" type="text" placeholder="예: 오늘 회의의 쟁점, 찬반 포인트, 후속 확인 항목을 정리해줘" />
+            <button id="aiBtn" class="primary-btn">브리핑 요청</button>
+          </div>
+          <div class="ai-panels">
+            <section class="ai-panel">
+              <div class="panel-head inline">
+                <h3>브리핑 답변</h3>
+                <span id="modelMeta" class="panel-meta">AI 요약: MiniMax 연계</span>
+              </div>
+              <pre id="aiResult" class="ai-result">브리핑 결과가 여기에 표시됩니다.</pre>
+            </section>
+            <section class="ai-panel secondary">
+              <div class="panel-head inline">
+                <h3>분석 메모</h3>
+                <span class="panel-meta">공개 가능한 근거 요약</span>
+              </div>
+              <pre id="aiAnalysis" class="ai-result analysis-result">분석 메모가 여기에 표시됩니다.</pre>
+            </section>
+          </div>
+        </div>
       </article>
 
       <article class="card panel detail-panel">
@@ -106,18 +142,6 @@
           <span id="detailMeta" class="panel-meta">-</span>
         </div>
         <div id="detailBox" class="detail-box empty">발언을 선택해 주세요.</div>
-
-        <div class="ai-box">
-          <div class="panel-head inline">
-            <h3>AI 요약</h3>
-            <span id="aiStatus" class="panel-meta">MiniMax Edge 준비 전</span>
-          </div>
-          <div class="ai-controls">
-            <input id="aiQuestion" type="text" placeholder="예: 오늘 회의의 재난안전 관련 쟁점을 요약해줘" />
-            <button id="aiBtn" class="primary-btn">요약 요청</button>
-          </div>
-          <pre id="aiResult" class="ai-result">요약 결과가 여기에 표시됩니다.</pre>
-        </div>
       </article>
     </section>
 
@@ -140,6 +164,39 @@
           </thead>
           <tbody id="tableBody"></tbody>
         </table>
+      </div>
+    </section>
+
+    <section id="ragBackgroundSection" class="card panel rag-panel">
+      <div class="panel-head">
+        <h2>기술 배경: 이 페이지를 RAG로 보면</h2>
+        <span class="panel-meta">Retrieval · Augmentation · Generation</span>
+      </div>
+      <div class="rag-grid">
+        <article class="rag-card">
+          <strong>1. Retrieval</strong>
+          <p>사용자가 선택한 기간과 키워드에 맞춰 Supabase의 <code>assembly_minutes_raw</code>에서 회의록 발언을 조회합니다. 트리, 상세, 로우 목록은 모두 이 조회 결과를 기반으로 움직입니다.</p>
+        </article>
+        <article class="rag-card">
+          <strong>2. Augmentation</strong>
+          <p>선택 발언, 같은 날짜의 주요 안건, 위원회, 발언자 분포를 함께 묶어 MiniMax에 전달할 컨텍스트를 만듭니다. 즉 모델은 인터넷 전체가 아니라 현재 회의록 범위에 근거해 답변합니다.</p>
+        </article>
+        <article class="rag-card">
+          <strong>3. Generation</strong>
+          <p>MiniMax는 위 컨텍스트를 바탕으로 브리핑 답변과 분석 메모를 생성합니다. 내부 추론 전체는 노출하지 않고, 사람이 검토 가능한 수준의 근거 요약만 공개합니다.</p>
+        </article>
+        <article class="rag-card">
+          <strong>동기화 경로</strong>
+          <p>원천 SQLite 회의록을 Supabase 공개 테이블로 증분 동기화합니다. 이 공개 페이지는 동기화된 최신 <code>meeting_date</code>를 읽어 기본 조회 범위를 자동으로 맞춥니다.</p>
+        </article>
+        <article class="rag-card">
+          <strong>왜 이 구조가 유용한가</strong>
+          <p>검색과 생성이 분리돼 있어서, 사용자는 원문 목록으로 사실을 확인하고 MiniMax 브리핑으로 핵심을 빠르게 파악할 수 있습니다. 즉 “원문 근거 + 모델 설명”이 같이 움직입니다.</p>
+        </article>
+        <article class="rag-card">
+          <strong>현재 한계</strong>
+          <p>브리핑 품질은 가져온 회의록 범위와 발언 정제 품질에 좌우됩니다. 그래서 날짜 범위, 필터, 선택 발언이 곧 RAG의 검색 품질을 결정합니다.</p>
+        </article>
       </div>
     </section>
   </div>
