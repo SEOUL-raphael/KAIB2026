@@ -26,6 +26,7 @@ const kpiDayEl = document.getElementById("kpiDay");
 const aiQuestionEl = document.getElementById("aiQuestion");
 const aiBtnEl = document.getElementById("aiBtn");
 const aiResultEl = document.getElementById("aiResult");
+const aiAnalysisEl = document.getElementById("aiAnalysis");
 const aiStatusEl = document.getElementById("aiStatus");
 const syncMetaEl = document.getElementById("syncMeta");
 const modelMetaEl = document.getElementById("modelMeta");
@@ -111,6 +112,15 @@ function setModelMeta(mode = "") {
     return;
   }
   modelMetaEl.textContent = "AI 요약: MiniMax 연계";
+}
+
+function setAiOutputs(answerText, analysisText = "") {
+  aiResultEl.textContent = answerText || "응답이 비어 있습니다.";
+  aiResultEl.classList.remove("empty");
+  if (aiAnalysisEl) {
+    aiAnalysisEl.textContent = analysisText || "분석 메모가 제공되지 않았습니다.";
+    aiAnalysisEl.classList.remove("empty");
+  }
 }
 
 function escapeHtml(value) {
@@ -488,6 +498,21 @@ function localSummary(rows, question) {
   ].join("\n");
 }
 
+function localAnalysisNote(rows) {
+  const topRows = rows.slice(0, 5).map((row) => (
+    `- ${row.meeting_date} / ${row.committee_path} / ${row.speaker}: ${shortText(row.speech_text, 88)}`
+  ));
+  return [
+    "[분석 메모]",
+    `- 현재 날짜 범위에서 ${formatNumber(rows.length)}건의 발언을 확인했습니다.`,
+    "- 원문 전체 대신 주요 발언 샘플과 위원회/발언자 분포를 함께 요약했습니다.",
+    "- 내부 추론 전체는 노출하지 않고, 검토 가능한 근거 수준의 메모만 제공합니다.",
+    "",
+    "근거 샘플",
+    ...topRows,
+  ].join("\n");
+}
+
 async function fetchAssemblyRows(start, end) {
   const pageSize = 1000;
   const hardLimit = 5000;
@@ -579,14 +604,12 @@ async function runAiBrief() {
     state.aiMode = payload.mode || "unknown";
     aiStatusEl.textContent = state.aiMode === "minimax" ? "MiniMax 응답" : "로컬 대체 요약";
     setModelMeta(state.aiMode === "minimax" ? "minimax" : "fallback");
-    aiResultEl.textContent = payload.answer || "응답이 비어 있습니다.";
-    aiResultEl.classList.remove("empty");
+    setAiOutputs(payload.answer || "응답이 비어 있습니다.", payload.analysis_summary || payload.analysis || "");
   } catch (error) {
     console.warn("AI brief fallback", error);
     aiStatusEl.textContent = "로컬 대체 요약";
     setModelMeta("fallback");
-    aiResultEl.textContent = localSummary(state.filteredRows, question);
-    aiResultEl.classList.remove("empty");
+    setAiOutputs(localSummary(state.filteredRows, question), localAnalysisNote(state.filteredRows));
   } finally {
     aiBtnEl.disabled = false;
   }
