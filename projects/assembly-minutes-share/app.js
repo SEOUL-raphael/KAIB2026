@@ -4,6 +4,7 @@ const SUPABASE_URL = "https://ltmrtmavgjlflvcbahpy.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_G7KWaNGrMUE-5bZ4XxmiQg_sO-ZEaUC";
 const SUPABASE_ANON_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0bXJ0bWF2Z2psZmx2Y2JhaHB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2OTg5MzcsImV4cCI6MjA4ODI3NDkzN30.2VGWuCrw8eIz0vqNmhEKhkJUn8Huh537uY7LDjPxELg";
 const ASSEMBLY_BRIEF_URL = `${SUPABASE_URL}/functions/v1/assembly-brief`;
+const NEMOTRON_LOCAL_EMBED_URL = "http://127.0.0.1:8791/embed";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } });
 const E5_MODEL_ID = "Xenova/multilingual-e5-small";
 
@@ -67,6 +68,28 @@ async function buildQueryEmbedding384(question) {
   return `[${values.map((value) => Number(value).toFixed(7)).join(",")}]`;
 }
 
+async function buildQueryEmbedding1024(question) {
+  const response = await fetch(NEMOTRON_LOCAL_EMBED_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      texts: [question],
+      kind: "query",
+      normalize: true,
+      slice_dim: 1024,
+    }),
+  });
+  if (!response.ok) {
+    throw new Error(`Nemotron local HTTP ${response.status}`);
+  }
+  const payload = await response.json();
+  const values = payload?.embeddings?.[0] || [];
+  if (!Array.isArray(values) || !values.length) {
+    throw new Error("Nemotron local query embedding is empty");
+  }
+  return `[${values.map((value) => Number(value).toFixed(7)).join(",")}]`;
+}
+
 function isoDay(date) {
   return date.toISOString().slice(0, 10);
 }
@@ -126,6 +149,7 @@ function setSyncMeta(latestDate) {
 }
 
 function retrievalLabel(retrievalMode = "") {
+  if (retrievalMode === "vector_nemotron1024") return "벡터 RAG(Nemotron1024)";
   if (retrievalMode === "vector_local384") return "벡터 RAG(local384)";
   if (retrievalMode === "vector_jina1024") return "벡터 RAG";
   if (retrievalMode === "sql_range") return "SQL 범위 조회";
@@ -616,13 +640,20 @@ async function runAiBrief() {
   aiResultEl.textContent = "요약 생성 중...";
   try {
     aiStatusEl.textContent = "질의 임베딩 준비 중...";
+    let queryEmbedding1024Text = "";
     let queryEmbedding384Text = "";
     try {
-      queryEmbedding384Text = await buildQueryEmbedding384(question);
-      aiStatusEl.textContent = "벡터 검색 준비 완료 · MiniMax 요청 중...";
-    } catch (embeddingError) {
-      console.warn("browser query embedding fallback", embeddingError);
-      aiStatusEl.textContent = "질의 임베딩 실패 · SQL 범위 조회로 계속 진행...";
+      queryEmbedding1024Text = await buildQueryEmbedding1024(question);
+      aiStatusEl.textContent = "Nemotron 질의 임베딩 완료 · MiniMax 요청 중...";
+    } catch (nemotronError) {
+      console.warn("nemotron local query embedding fallback", nemotronError);
+      try {
+        queryEmbedding384Text = await buildQueryEmbedding384(question);
+        aiStatusEl.textContent = "브라우저 질의 임베딩 완료 · MiniMax 요청 중...";
+      } catch (embeddingError) {
+        console.warn("browser query embedding fallback", embeddingError);
+        aiStatusEl.textContent = "질의 임베딩 실패 · SQL 범위 조회로 계속 진행...";
+      }
     }
 
     const response = await fetch(ASSEMBLY_BRIEF_URL, {
@@ -639,6 +670,7 @@ async function runAiBrief() {
         end: endDateEl.value,
         domain: "assembly",
         limit: 6,
+        query_embedding_1024_text: queryEmbedding1024Text,
         query_embedding_384_text: queryEmbedding384Text,
       }),
     });
