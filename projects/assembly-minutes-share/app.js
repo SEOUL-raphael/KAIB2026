@@ -1,8 +1,8 @@
-﻿import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { buildAiViewModel, cleanText, formatNumber, retrievalLabel } from "./ui-state.js";
 
 const SUPABASE_URL = "https://ltmrtmavgjlflvcbahpy.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_G7KWaNGrMUE-5bZ4XxmiQg_sO-ZEaUC";
-const SUPABASE_ANON_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0bXJ0bWF2Z2psZmx2Y2JhaHB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2OTg5MzcsImV4cCI6MjA4ODI3NDkzN30.2VGWuCrw8eIz0vqNmhEKhkJUn8Huh537uY7LDjPxELg";
 const ASSEMBLY_BRIEF_URL = `${SUPABASE_URL}/functions/v1/assembly-brief`;
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } });
 
@@ -26,10 +26,11 @@ const kpiDayEl = document.getElementById("kpiDay");
 const aiQuestionEl = document.getElementById("aiQuestion");
 const aiBtnEl = document.getElementById("aiBtn");
 const aiResultEl = document.getElementById("aiResult");
-const aiAnalysisEl = document.getElementById("aiAnalysis");
+const aiTraceEl = document.getElementById("aiTrace");
 const aiStatusEl = document.getElementById("aiStatus");
 const syncMetaEl = document.getElementById("syncMeta");
 const modelMetaEl = document.getElementById("modelMeta");
+const vectorMetaEl = document.getElementById("vectorMeta");
 let recordMetaEl = document.getElementById("recordMeta");
 let recordListEl = document.getElementById("recordList");
 let agendaMetaEl = document.getElementById("agendaMeta");
@@ -71,14 +72,6 @@ function normalizeLabel(value, fallback = "미상") {
   return text;
 }
 
-function cleanText(value, fallback = "") {
-  const text = String(value ?? "")
-    .replace(/\bnan\b/gi, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-  return text || fallback;
-}
-
 function committeeSegments(committee) {
   const raw = normalizeLabel(committee, "위원회 미상");
   const parts = raw.split("-").map((item) => item.trim()).filter(Boolean);
@@ -90,10 +83,6 @@ function shortText(text, length = 84) {
   return clean.length > length ? `${clean.slice(0, length)}...` : clean;
 }
 
-function formatNumber(value) {
-  return Number(value || 0).toLocaleString("ko-KR");
-}
-
 function setSyncMeta(latestDate) {
   if (!syncMetaEl) return;
   syncMetaEl.textContent = latestDate
@@ -101,25 +90,32 @@ function setSyncMeta(latestDate) {
     : "최종 동기화 기준일 확인 불가";
 }
 
-function setModelMeta(mode = "") {
+function setVectorMeta(text) {
+  if (!vectorMetaEl) return;
+  vectorMetaEl.textContent = text || "벡터 적재 범위 확인 불가";
+}
+
+function setModelMeta(mode = "", retrievalMode = "") {
+  const retrieval = retrievalMode ? ` · ${retrievalLabel(retrievalMode)}` : "";
   if (!modelMetaEl) return;
   if (mode === "minimax") {
-    modelMetaEl.textContent = "AI 요약: MiniMax 응답 확인";
+    modelMetaEl.textContent = `AI 요약: MiniMax 응답 확인${retrieval}`;
     return;
   }
   if (mode === "fallback") {
-    modelMetaEl.textContent = "AI 요약: 로컬 대체 요약 사용 중";
+    modelMetaEl.textContent = `AI 요약: 로컬 대체 요약 사용 중${retrieval}`;
     return;
   }
-  modelMetaEl.textContent = "AI 요약: MiniMax 연계";
+  modelMetaEl.textContent = `AI 요약: MiniMax 연계${retrieval}`;
 }
 
-function setAiOutputs(answerText, analysisText = "") {
-  aiResultEl.textContent = answerText || "응답이 비어 있습니다.";
+function setAiOutputs(answerText, traceLines = []) {
+  aiResultEl.textContent = answerText || "??? ?? ????.";
   aiResultEl.classList.remove("empty");
-  if (aiAnalysisEl) {
-    aiAnalysisEl.textContent = analysisText || "분석 메모가 제공되지 않았습니다.";
-    aiAnalysisEl.classList.remove("empty");
+  if (aiTraceEl) {
+    aiTraceEl.textContent = (traceLines || []).join("
+") || "?? ??? ?? ????.";
+    aiTraceEl.classList.remove("empty");
   }
 }
 
@@ -498,19 +494,16 @@ function localSummary(rows, question) {
   ].join("\n");
 }
 
-function localAnalysisNote(rows) {
-  const topRows = rows.slice(0, 5).map((row) => (
-    `- ${row.meeting_date} / ${row.committee_path} / ${row.speaker}: ${shortText(row.speech_text, 88)}`
-  ));
+function localTraceLines(rows, question) {
   return [
-    "[분석 메모]",
-    `- 현재 날짜 범위에서 ${formatNumber(rows.length)}건의 발언을 확인했습니다.`,
-    "- 원문 전체 대신 주요 발언 샘플과 위원회/발언자 분포를 함께 요약했습니다.",
-    "- 내부 추론 전체는 노출하지 않고, 검토 가능한 근거 수준의 메모만 제공합니다.",
-    "",
-    "근거 샘플",
-    ...topRows,
-  ].join("\n");
+    "1. ?? ??",
+    `2. ?? ??: ${question}`,
+    "3. ?? ??: SQL ?? ??",
+    `4. ?? ??? ??: ${formatNumber(rows.length)}?`,
+    `5. ?? ?? ????: ${formatNumber(Math.min(rows.length, 3))}?`,
+    "6. MiniMax ?? ??? ?? ?? ??",
+    "7. ?? ?? ?? ?? ??",
+  ];
 }
 
 async function fetchAssemblyRows(start, end) {
@@ -547,6 +540,27 @@ async function fetchLatestMeetingDate() {
   return data?.[0]?.meeting_date || null;
 }
 
+async function fetchVectorCoverage() {
+  const table = "assembly_minutes_embedding_nemotron1024";
+
+  const [{ count, error: countError }, { data: minData, error: minError }, { data: maxData, error: maxError }] =
+    await Promise.all([
+      supabase.from(table).select("utterance_id", { count: "exact", head: true }),
+      supabase.from(table).select("meeting_date").order("meeting_date", { ascending: true }).limit(1),
+      supabase.from(table).select("meeting_date").order("meeting_date", { ascending: false }).limit(1),
+    ]);
+
+  if (countError) throw countError;
+  if (minError) throw minError;
+  if (maxError) throw maxError;
+
+  return {
+    count: Number(count || 0),
+    start: minData?.[0]?.meeting_date || null,
+    end: maxData?.[0]?.meeting_date || null,
+  };
+}
+
 async function refreshRows() {
   const start = startDateEl.value;
   const end = endDateEl.value;
@@ -573,17 +587,29 @@ async function refreshRows() {
 
 async function runAiBrief() {
   const selected = getSelectedRow();
-  const question = cleanText(aiQuestionEl.value, "오늘 회의의 핵심 쟁점을 요약해줘");
+  const question = cleanText(aiQuestionEl.value, "?? ??? ?? ??? ????");
   const targetDay = selected?.meeting_date || endDateEl.value;
   aiBtnEl.disabled = true;
-  aiResultEl.textContent = "요약 생성 중...";
+  aiResultEl.textContent = "?? ?? ?...";
+  if (aiTraceEl) {
+    aiTraceEl.textContent = [
+      "1. ?? ??",
+      `2. ?? ??: ${question}`,
+      `3. ?? ?? ??: ${startDateEl.value} ~ ${endDateEl.value}`,
+      "4. ???? ??? ?? ?? ??",
+      "5. MiniMax ?? ?? ?...",
+    ].join("
+");
+    aiTraceEl.classList.remove("empty");
+  }
   try {
+    aiStatusEl.textContent = "???? ??? ???? MiniMax ?? ?...";
+
     const response = await fetch(ASSEMBLY_BRIEF_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        apikey: SUPABASE_ANON_JWT,
-        Authorization: `Bearer ${SUPABASE_ANON_JWT}`,
+        apikey: SUPABASE_ANON_KEY,
       },
       body: JSON.stringify({
         question,
@@ -600,16 +626,17 @@ async function runAiBrief() {
     }
 
     const payload = await response.json();
-    if (!payload.ok) throw new Error(payload.error || "요약 실패");
+    if (!payload.ok) throw new Error(payload.error || "?? ??");
     state.aiMode = payload.mode || "unknown";
-    aiStatusEl.textContent = state.aiMode === "minimax" ? "MiniMax 응답" : "로컬 대체 요약";
-    setModelMeta(state.aiMode === "minimax" ? "minimax" : "fallback");
-    setAiOutputs(payload.answer || "응답이 비어 있습니다.", payload.analysis_summary || payload.analysis || "");
+    const viewModel = buildAiViewModel(payload);
+    aiStatusEl.textContent = viewModel.statusText;
+    modelMetaEl.textContent = viewModel.modelMetaText;
+    setAiOutputs(viewModel.answerText, viewModel.traceLines);
   } catch (error) {
     console.warn("AI brief fallback", error);
-    aiStatusEl.textContent = "로컬 대체 요약";
-    setModelMeta("fallback");
-    setAiOutputs(localSummary(state.filteredRows, question), localAnalysisNote(state.filteredRows));
+    aiStatusEl.textContent = "?? ?? ??";
+    setModelMeta("fallback", "sql_range");
+    setAiOutputs(localSummary(state.filteredRows, question), localTraceLines(state.filteredRows, question));
   } finally {
     aiBtnEl.disabled = false;
   }
@@ -650,6 +677,7 @@ aiBtnEl.addEventListener("click", runAiBrief);
 async function init() {
   initDates();
   syncModeButtons();
+  setVectorMeta("벡터 적재 범위 확인 중...");
   try {
     const latest = await fetchLatestMeetingDate();
     if (latest) {
@@ -662,7 +690,18 @@ async function init() {
     console.warn("latest meeting date fallback", error);
     setSyncMeta("");
   }
-  setModelMeta();
+  try {
+    const vector = await fetchVectorCoverage();
+    if (vector.count > 0 && vector.start && vector.end) {
+      setVectorMeta(`벡터DB 적재 범위: ${vector.start} ~ ${vector.end} · ${formatNumber(vector.count)}건`);
+    } else {
+      setVectorMeta("벡터DB 적재 범위: 아직 없음");
+    }
+  } catch (error) {
+    console.warn("vector coverage fallback", error);
+    setVectorMeta("벡터DB 적재 범위 확인 불가");
+  }
+  setModelMeta("", "");
   await refreshRows();
 }
 
