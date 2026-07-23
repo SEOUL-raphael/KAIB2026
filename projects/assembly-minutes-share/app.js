@@ -1,4 +1,5 @@
-﻿import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { buildAiViewModel, cleanText, formatNumber, retrievalLabel } from "./ui-state.js";
 
 const SUPABASE_URL = "https://ltmrtmavgjlflvcbahpy.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_G7KWaNGrMUE-5bZ4XxmiQg_sO-ZEaUC";
@@ -25,7 +26,7 @@ const kpiDayEl = document.getElementById("kpiDay");
 const aiQuestionEl = document.getElementById("aiQuestion");
 const aiBtnEl = document.getElementById("aiBtn");
 const aiResultEl = document.getElementById("aiResult");
-const aiAnalysisEl = document.getElementById("aiAnalysis");
+const aiTraceEl = document.getElementById("aiTrace");
 const aiStatusEl = document.getElementById("aiStatus");
 const syncMetaEl = document.getElementById("syncMeta");
 const modelMetaEl = document.getElementById("modelMeta");
@@ -71,14 +72,6 @@ function normalizeLabel(value, fallback = "미상") {
   return text;
 }
 
-function cleanText(value, fallback = "") {
-  const text = String(value ?? "")
-    .replace(/\bnan\b/gi, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-  return text || fallback;
-}
-
 function committeeSegments(committee) {
   const raw = normalizeLabel(committee, "위원회 미상");
   const parts = raw.split("-").map((item) => item.trim()).filter(Boolean);
@@ -88,10 +81,6 @@ function committeeSegments(committee) {
 function shortText(text, length = 84) {
   const clean = cleanText(text);
   return clean.length > length ? `${clean.slice(0, length)}...` : clean;
-}
-
-function formatNumber(value) {
-  return Number(value || 0).toLocaleString("ko-KR");
 }
 
 function setSyncMeta(latestDate) {
@@ -104,19 +93,6 @@ function setSyncMeta(latestDate) {
 function setVectorMeta(text) {
   if (!vectorMetaEl) return;
   vectorMetaEl.textContent = text || "벡터 적재 범위 확인 불가";
-}
-
-function retrievalLabel(retrievalMode = "") {
-  if (retrievalMode === "vector_nemotron1024") return "벡터 RAG(Nemotron1024)";
-  if (retrievalMode === "vector_local384") return "벡터 RAG(local384)";
-  if (retrievalMode === "vector_jina1024") return "벡터 RAG";
-  if (retrievalMode === "sql_range") return "SQL 범위 조회";
-  return "조회 경로 미상";
-}
-
-function shortError(text, maxLength = 84) {
-  const value = cleanText(text, "");
-  return value.length > maxLength ? `${value.slice(0, maxLength)}...` : value;
 }
 
 function setModelMeta(mode = "", retrievalMode = "") {
@@ -133,12 +109,13 @@ function setModelMeta(mode = "", retrievalMode = "") {
   modelMetaEl.textContent = `AI 요약: MiniMax 연계${retrieval}`;
 }
 
-function setAiOutputs(answerText, analysisText = "") {
-  aiResultEl.textContent = answerText || "응답이 비어 있습니다.";
+function setAiOutputs(answerText, traceLines = []) {
+  aiResultEl.textContent = answerText || "??? ?? ????.";
   aiResultEl.classList.remove("empty");
-  if (aiAnalysisEl) {
-    aiAnalysisEl.textContent = analysisText || "분석 메모가 제공되지 않았습니다.";
-    aiAnalysisEl.classList.remove("empty");
+  if (aiTraceEl) {
+    aiTraceEl.textContent = (traceLines || []).join("
+") || "?? ??? ?? ????.";
+    aiTraceEl.classList.remove("empty");
   }
 }
 
@@ -517,19 +494,16 @@ function localSummary(rows, question) {
   ].join("\n");
 }
 
-function localAnalysisNote(rows) {
-  const topRows = rows.slice(0, 5).map((row) => (
-    `- ${row.meeting_date} / ${row.committee_path} / ${row.speaker}: ${shortText(row.speech_text, 88)}`
-  ));
+function localTraceLines(rows, question) {
   return [
-    "[분석 메모]",
-    `- 현재 날짜 범위에서 ${formatNumber(rows.length)}건의 발언을 확인했습니다.`,
-    "- 원문 전체 대신 주요 발언 샘플과 위원회/발언자 분포를 함께 요약했습니다.",
-    "- 내부 추론 전체는 노출하지 않고, 검토 가능한 근거 수준의 메모만 제공합니다.",
-    "",
-    "근거 샘플",
-    ...topRows,
-  ].join("\n");
+    "1. ?? ??",
+    `2. ?? ??: ${question}`,
+    "3. ?? ??: SQL ?? ??",
+    `4. ?? ??? ??: ${formatNumber(rows.length)}?`,
+    `5. ?? ?? ????: ${formatNumber(Math.min(rows.length, 3))}?`,
+    "6. MiniMax ?? ??? ?? ?? ??",
+    "7. ?? ?? ?? ?? ??",
+  ];
 }
 
 async function fetchAssemblyRows(start, end) {
@@ -613,12 +587,23 @@ async function refreshRows() {
 
 async function runAiBrief() {
   const selected = getSelectedRow();
-  const question = cleanText(aiQuestionEl.value, "오늘 회의의 핵심 쟁점을 요약해줘");
+  const question = cleanText(aiQuestionEl.value, "?? ??? ?? ??? ????");
   const targetDay = selected?.meeting_date || endDateEl.value;
   aiBtnEl.disabled = true;
-  aiResultEl.textContent = "요약 생성 중...";
+  aiResultEl.textContent = "?? ?? ?...";
+  if (aiTraceEl) {
+    aiTraceEl.textContent = [
+      "1. ?? ??",
+      `2. ?? ??: ${question}`,
+      `3. ?? ?? ??: ${startDateEl.value} ~ ${endDateEl.value}`,
+      "4. ???? ??? ?? ?? ??",
+      "5. MiniMax ?? ?? ?...",
+    ].join("
+");
+    aiTraceEl.classList.remove("empty");
+  }
   try {
-    aiStatusEl.textContent = "업로드된 데이터 기반으로 MiniMax 요청 중...";
+    aiStatusEl.textContent = "???? ??? ???? MiniMax ?? ?...";
 
     const response = await fetch(ASSEMBLY_BRIEF_URL, {
       method: "POST",
@@ -641,25 +626,17 @@ async function runAiBrief() {
     }
 
     const payload = await response.json();
-    if (!payload.ok) throw new Error(payload.error || "요약 실패");
+    if (!payload.ok) throw new Error(payload.error || "?? ??");
     state.aiMode = payload.mode || "unknown";
-    const retrievalMode = payload?.stats?.retrieval_mode || "";
-    const semanticRows = Number(payload?.stats?.semantic_rows || 0);
-    const vectorError = shortError(payload?.stats?.vector_error || "");
-    if (state.aiMode === "minimax") {
-      aiStatusEl.textContent = semanticRows > 0
-        ? `MiniMax 응답 · ${retrievalLabel(retrievalMode)} · 근거 ${semanticRows}건`
-        : `MiniMax 응답 · ${retrievalLabel(retrievalMode)}${vectorError ? ` · ${vectorError}` : ""}`;
-    } else {
-      aiStatusEl.textContent = `로컬 대체 요약 · ${retrievalLabel(retrievalMode)}`;
-    }
-    setModelMeta(state.aiMode === "minimax" ? "minimax" : "fallback", retrievalMode);
-    setAiOutputs(payload.answer || "응답이 비어 있습니다.", payload.analysis_summary || payload.analysis || "");
+    const viewModel = buildAiViewModel(payload);
+    aiStatusEl.textContent = viewModel.statusText;
+    modelMetaEl.textContent = viewModel.modelMetaText;
+    setAiOutputs(viewModel.answerText, viewModel.traceLines);
   } catch (error) {
     console.warn("AI brief fallback", error);
-    aiStatusEl.textContent = "로컬 대체 요약";
+    aiStatusEl.textContent = "?? ?? ??";
     setModelMeta("fallback", "sql_range");
-    setAiOutputs(localSummary(state.filteredRows, question), localAnalysisNote(state.filteredRows));
+    setAiOutputs(localSummary(state.filteredRows, question), localTraceLines(state.filteredRows, question));
   } finally {
     aiBtnEl.disabled = false;
   }
